@@ -1,20 +1,18 @@
-(function(Button) {
+(function(Link) {
   
-  Button.Model = Backbone.Model.extend({
+  Link.Model = Backbone.Model.extend({
       click: function() {
-        var that = this
-          , data = {}
-          ;
+        var url = this.get('link') + '?';
         
         _.each(this.get('params'), function(param) {
-          data[param] = fly.mem.get(param);
+          url += param + '=' + fly.mem.get(param) + '&';
         });
         
-        fly.api('GET', this.get('url'), data, function(results) {
-          fly.mem.set(that.get('bind'), results);
-        });
+        url = url.slice(0, -1);
+        
+        window.location.href = url;
       }
-  
+    
     , initialize: function(options) {
         var $node = $(options.node)
           , paramStr = $node.data('param')
@@ -25,17 +23,16 @@
           params.push($.trim(param));
         });
         
-        this.set('url', $node.data('url'));
+        this.set('link', $node.data('link'));
         this.set('params', params);
-        this.set('bind', $node.data('bind'));
       }
   });
   
-  Button.View = Backbone.View.extend({
+  Link.View = Backbone.View.extend({
       events: {
         'click': 'click'
       }
-  
+
     , click: function() {
         this.model.click();
       }
@@ -50,4 +47,4 @@
       }
   });
   
-})(fly.module('button'));
+})(fly.module('link'));

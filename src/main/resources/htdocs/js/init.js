@@ -6,7 +6,7 @@
       
       if (!url) { return; }
       
-      fly.api('GET', url, {}, function(results) {
+      fly.api('GET', url, fly.mem.attributes, function(results) {
         for (i in results) {
           if (results.hasOwnProperty(i)) {
             fly.mem.set(i, results[i]);

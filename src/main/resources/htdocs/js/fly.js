@@ -66,6 +66,22 @@ fly = {
       });
     }
   
+  , setQueryString: function() {
+      var that = this
+        , split = window.location.href.split('?')
+        ;
+      
+      if (split.length == 1) { return; }
+      
+      var params = split[1].split('&');
+      _.each(params, function(param) {
+        var kVal = param.split('=');
+        if (kVal.length != 2) { return; }
+        
+        that.mem.set(kVal[0], kVal[1]);
+      });
+    }
+  
   , mem: new Backbone.Model({})
 }
 
@@ -76,5 +92,6 @@ jQuery(function($) {
     _.each($('.fly-root'), fly.parse);
   });
   
+  fly.setQueryString();
   fly.parse($('[data-ftype="init"]')[0]);
 });
