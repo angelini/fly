@@ -12,16 +12,45 @@
         var $child = $(child);
         columns.push({ sTitle: $child.data('header')
                      , bind: $child.data('bind')
+                     , index: $child.data('index')
                      , node: $child });
       });
       
       this.set('columns', columns);
       this.set('bind', $node.data('bind'));
+      this.set('selected', $node.data('selected'));
     }
   });
   
   Table.View = Backbone.View.extend({
-      render: function() {
+      events: {
+        'click tr': 'selectRow'
+      }
+    
+    , selectRow: function(ev) {
+        var $row = $(ev.currentTarget)
+          , $table = $('#' + this.model.get('table-id'))
+          ;
+        
+        if ($row.hasClass('row_selected')) {
+          $row.removeClass('row_selected');
+        } else {
+          $table.dataTable().$('tr.row_selected').removeClass('row_selected');
+          $row.addClass('row_selected');
+          
+          var index = null;
+          
+          _.each(this.model.get('columns'), function(col, i) {
+            if (col.index) {
+              index = $($row.children()[i]).text();
+            }
+          });
+          
+          fly.mem.set(this.model.get('selected'), index);
+        }
+      }
+  
+    , render: function() {
         var id = 'fly-search-' + fly.idGen()
           , tableHtml = Mustache.render(this.template, {id: id})
           , columns = this.model.get('columns')

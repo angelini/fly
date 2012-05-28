@@ -4,7 +4,7 @@
   
   Date.View = Backbone.View.extend({
       render: function() {
-        this.$el.datepicker();
+        this.$el.datepicker({format: 'yyyy/mm/dd'});
         return this;
       }
   

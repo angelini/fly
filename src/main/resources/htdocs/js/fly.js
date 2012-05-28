@@ -72,5 +72,9 @@ fly = {
 // Start
 
 jQuery(function($) {
-  _.each(document.getElementsByClassName('fly-root'), fly.parse);
+  fly.mem.on('init', function() {
+    _.each($('.fly-root'), fly.parse);
+  });
+  
+  fly.parse($('[data-ftype="init"]')[0]);
 });
