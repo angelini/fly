@@ -66,6 +66,22 @@ fly = {
       });
     }
   
+  , setComponents: function() {
+      var $customs = $('[data-ftype="custom"]');
+      
+      _.each($customs, function(custom) {
+        var $custom = $(custom)
+          , name = $custom.data('name')
+          ;
+        
+        if (!name) {
+          throw new Error('Custom tags require "data-name" attribute');
+        }
+        
+        $custom.replaceWith($('#' + name).html());
+      });
+    }
+  
   , setQueryString: function() {
       var that = this
         , split = window.location.href.split('?')
@@ -92,6 +108,7 @@ jQuery(function($) {
     _.each($('.fly-root'), fly.parse);
   });
   
+  fly.setComponents();
   fly.setQueryString();
   fly.parse($('[data-ftype="init"]')[0]);
 });

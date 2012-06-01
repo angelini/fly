@@ -1,56 +1,43 @@
 package com.angelini.fly;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class LayoutTemplater extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final String LAYOUT = "/layout/layout.html";
 	
+	private static final String COMPONENT = "<script id=\"{{id}}\" type=\"text/template\">" +
+											"	\n{{html}}\n" +
+											"</script>";
+	
 	private String folder;
 	private String layout;
+	private String compString;
 	
-	private static Logger log = LoggerFactory.getLogger(LayoutTemplater.class);
-	
-	public LayoutTemplater(String folder) {
-		try {
-			this.folder = folder;
-			this.layout = getClasspathFile(LAYOUT);
-			
-		} catch (IOException e) {
-			log.error("Error building layout", e);
+	public LayoutTemplater(String folder, Map<String, String> components) throws IOException {
+		this.folder = folder;
+		this.layout = Utils.readFile(LAYOUT);
+		this.compString = "";
+		
+		for (Map.Entry<String, String> entry : components.entrySet()) {
+			String comp = COMPONENT.replace("{{id}}", entry.getKey().split("\\.")[0]);
+			compString += comp.replace("{{html}}", entry.getValue());
 		}
-	}
-	
-	private String getClasspathFile(String path) throws IOException {
-		InputStream streamBody = this.getClass().getResourceAsStream(path);
-		BufferedReader br = new BufferedReader(new InputStreamReader(streamBody));
-		StringBuilder sb = new StringBuilder();
-		 
-    	String line;
-    	while ((line = br.readLine()) != null) {
-    		sb.append(line + "\n");
-    	}
-    	
-    	br.close();
-    	return sb.toString();
+		
+		layout = layout.replace("{{components}}", compString);
 	}
 	
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			String path = (req.getPathInfo() == "/") ? "/index.html" : req.getPathInfo();
-			String html = this.layout.replace("{{body}}", getClasspathFile(folder + path));
+			String html = this.layout.replace("{{body}}", Utils.readFile(folder + path));
 			
 			resp.setStatus(200);
 			resp.getWriter().print(html);
