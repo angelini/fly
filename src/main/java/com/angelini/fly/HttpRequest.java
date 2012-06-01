@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -57,6 +61,31 @@ public class HttpRequest {
 	
 	public String getQuery(String key) {
 		return query.getString(key);
+	}
+	
+	public Integer getQueryInt(String key) {
+		try {
+			return Integer.parseInt(query.getString(key));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public Double getQueryDouble(String key) {
+		try {
+			return Double.parseDouble(query.getString(key));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public Date getQueryDate(String key) {
+		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+		try {
+			return df.parse(query.getString(key));
+		} catch (ParseException e) {
+			return null;
+		}
 	}
 	
 	// Delegate Methods
