@@ -9,11 +9,32 @@
   <script src="/js/vendor/less-1.3.0.js"></script>
  </head>
 <body>
+  <div id="alert" class="hidden"></div>
   <h3>Login</h3>
   <form method="POST" action="/auth/login">
     <label for="username">Username: </label><input type="text" name="username" />
     <label for="password">Password: </label><input type="password" name="password" />
     <input class="btn" type="submit" value="Submit" />
   </form>
+  <script>
+    (function errorDisplay() {
+      var split = window.location.href.split('?');
+      if (split.length == 1) { return; }
+      split = split[1].split('&');
+      
+      for (var i = 0; i < split.length; i++) {
+        var query = split[i].split('=');
+        if (query.length != 2) { continue; }
+        if (query[0] == 'error') {
+          var alert = document.getElementById('alert')
+            , text = decodeURIComponent(query[1]).split('+').join(' ')
+            ;
+          
+          alert.innerHTML = '<h4 class="alert-heading">Login Error</h4>' + text;
+          alert.className = 'alert alert-error'
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

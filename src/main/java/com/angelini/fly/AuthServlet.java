@@ -1,6 +1,7 @@
 package com.angelini.fly;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -53,7 +54,12 @@ public class AuthServlet extends HttpServlet {
 			Cookie authSigned = new Cookie(Constants.AUTH_SIG_COOKIE, "");
 			
 			auth.setMaxAge(0);
+			auth.setPath("/");
+			auth.setHttpOnly(true);
+			
 			authSigned.setMaxAge(0);
+			authSigned.setPath("/");
+			authSigned.setHttpOnly(true);
 			
 			resp.addCookie(auth);
 			resp.addCookie(authSigned);
@@ -76,10 +82,11 @@ public class AuthServlet extends HttpServlet {
 		
 		try {
 			Map<String, String> params = Utils.readBody(req.getReader());
-			if (authCheck.check(params.get("username"), params.get("password"))) {
-				String signed = authentication.signValue(params.get("username"));
+			String identifier = authCheck.check(params.get("username"), params.get("password")); 
+			if (identifier != null) {
+				String signed = authentication.signValue(identifier);
 				
-				Cookie auth = new Cookie(Constants.AUTH_COOKIE, params.get("username"));
+				Cookie auth = new Cookie(Constants.AUTH_COOKIE, identifier);
 				Cookie authSigned = new Cookie(Constants.AUTH_SIG_COOKIE, signed);
 				
 				auth.setPath("/");
@@ -93,7 +100,7 @@ public class AuthServlet extends HttpServlet {
 				resp.sendRedirect("/");
 				
 			} else {
-				resp.sendRedirect(LOGIN_URL);
+				resp.sendRedirect(LOGIN_URL + "?error=" + URLEncoder.encode("Username & Password combination invalid", "UTF8"));
 			}
 			
 		} catch (Exception e) {

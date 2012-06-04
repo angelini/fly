@@ -124,13 +124,19 @@ public class FlyRouter extends HttpServlet {
 			return;
 		}
 		
-		if (auth != null && !auth.verifySignature(req)) {
-			resp.sendRedirect(AuthServlet.LOGIN_URL);
-			return;
-		}
-		
 		HttpRequest httpRequest = new HttpRequest(req);
 		HttpResponse httpResponse = new HttpResponse(resp);
+		
+		if (auth != null) {
+			String identifier = auth.verifySignature(req);
+			
+			if (identifier != null) {
+				httpRequest.setUserIdentifier(identifier);
+			} else {
+				resp.sendRedirect(AuthServlet.LOGIN_URL);
+				return;
+			}
+		}
 		
 		String path = (req.getPathInfo() == null) ? "/" : req.getPathInfo();
 		RouteMatch match = FlyRouter.match(tree, path);

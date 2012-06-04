@@ -37,7 +37,7 @@ public class LayoutTemplater extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		if (auth != null && !auth.verifySignature(req)) {
+		if (auth != null && auth.verifySignature(req) != null) {
 			resp.sendRedirect(AuthServlet.LOGIN_URL);
 			return;
 		}

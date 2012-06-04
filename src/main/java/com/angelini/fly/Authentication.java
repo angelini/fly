@@ -28,7 +28,7 @@ public class Authentication {
 		}
 	}
 	
-	public boolean verifySignature(HttpServletRequest req) {
+	public String verifySignature(HttpServletRequest req) {
 		String authString = null;
 		String authSigned = null;
 		Cookie[] cookies = req.getCookies();
@@ -44,14 +44,14 @@ public class Authentication {
 		}
 		
 		if (authString == null || authSigned == null) {
-			return false;
+			return null;
 		}
 		
 		if (verifySignature(authString, authSigned)) {
-			return true;
+			return authString;
 		}
 		
-		return false;
+		return null;
 	}
 	
 	public boolean verifySignature(String val, String signed) {

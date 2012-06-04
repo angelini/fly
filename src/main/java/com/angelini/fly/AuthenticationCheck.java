@@ -4,6 +4,6 @@ public interface AuthenticationCheck {
 
 	public void init(FlyDB db);
 	
-	public boolean check(String username, String password);
+	public String check(String username, String password);
 	
 }

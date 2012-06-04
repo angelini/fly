@@ -36,6 +36,7 @@ public class HttpRequest {
 	private HttpServletRequest req;
 	private Map<String, String> params;
 	private MultiMap<String> query;
+	private String userIdentifier;
 	
 	public HttpRequest(HttpServletRequest req) {
 		this.req = req;
@@ -87,6 +88,14 @@ public class HttpRequest {
 		} catch (ParseException e) {
 			return null;
 		}
+	}
+	
+	public String getUserIdententifier() {
+		return userIdentifier;
+	}
+
+	public void setUserIdentifier(String userIdentifier) {
+		this.userIdentifier = userIdentifier;
 	}
 	
 	// Delegate Methods
