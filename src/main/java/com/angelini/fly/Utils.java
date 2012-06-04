@@ -1,12 +1,15 @@
 package com.angelini.fly;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
 	
@@ -35,6 +38,28 @@ public class Utils {
 		} finally {
 			stream.close();
 		}
+	}
+	
+	public static Map<String, String> readBody(BufferedReader buff) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		
+		String line;
+		while ((line = buff.readLine()) != null) {
+			sb.append(line);
+		}
+		
+		buff.close();
+		
+		Map<String, String> params = new HashMap<String, String>();
+		String[] split = sb.toString().split("&");
+		
+		for (String param : split) {
+			String[] parts = param.split("=");
+			if (parts.length != 2) { continue; }
+			params.put(parts[0], parts[1]);
+		}
+		
+		return params;
 	}
 
 }

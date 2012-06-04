@@ -55,5 +55,10 @@
       <artifactId>bonecp</artifactId>
       <version>0.7.1.RELEASE</version>
 		</dependency>
+		<dependency>
+		  <groupId>commons-codec</groupId>
+		  <artifactId>commons-codec</artifactId>
+		  <version>1.6</version>
+		</dependency>
 	</dependencies>
 </project>

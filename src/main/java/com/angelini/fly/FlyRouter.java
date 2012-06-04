@@ -14,7 +14,38 @@ public class FlyRouter extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private RoutedServlet routedServlet;
+	private Authentication auth;
+	
 	protected Map<Integer, RouteTreeNode> routeTrees;
+	
+	public FlyRouter(FlyDB db, Class<?> routed, Authentication auth) throws RouterException {
+		try {
+			routedServlet = (RoutedServlet) routed.newInstance();
+			routedServlet.init(db);
+		} catch (Exception e) {
+			throw new RuntimeException("Cannot instantiate RoutedServlet class", e);
+		}
+		
+		this.auth = auth;
+		
+		routeTrees = new HashMap<Integer, RouteTreeNode>();
+		routeTrees.put(Router.GET, null);
+		routeTrees.put(Router.POST, null);
+		routeTrees.put(Router.DELETE, null);
+		routeTrees.put(Router.PUT, null);
+		
+		Method[] methods = routed.getMethods();
+		
+		for (Method method : methods) {
+			if (method.isAnnotationPresent(Router.class)) {
+				Router router = method.getAnnotation(Router.class);
+				String route = router.route();
+				int verb = router.verb();
+				
+				routeTrees.put(verb, buildTree(route, method, routeTrees.get(verb)));
+			}
+		}
+	}
 	
 	protected static RouteMatch match(RouteTreeNode tree, String route) {
 		RouteMatch match = new RouteMatch();
@@ -49,65 +80,55 @@ public class FlyRouter extends HttpServlet {
 		return match;
 	}
 	
-	public FlyRouter(FlyDB db, Class<?> routed) throws RouterException {
-		try {
-			routedServlet = (RoutedServlet) routed.newInstance();
-			routedServlet.init(db);
-		} catch (Exception e) {
-			throw new RouterException(e.getMessage());
+	protected static RouteTreeNode buildTree(String route, Method method, RouteTreeNode tree) {
+		RouteTreeNode current = null;
+		String[] split = route.split("/");
+		
+		if (split.length == 0) {
+			split = new String[] {""};
 		}
 		
-		routeTrees = new HashMap<Integer, RouteTreeNode>();
-		routeTrees.put(Router.GET, null);
-		routeTrees.put(Router.POST, null);
-		routeTrees.put(Router.DELETE, null);
-		routeTrees.put(Router.PUT, null);
-		
-		Method[] methods = routed.getMethods();
-		
-		for (Method method : methods) {
-			if (method.isAnnotationPresent(Router.class)) {
-				Router router = method.getAnnotation(Router.class);
-				String route = router.route();
-				int verb = router.verb();
-				
-				RouteTreeNode current = null;
-				String[] split = route.split("/");
-				
-				if (split.length == 0) {
-					split = new String[] {""};
-				}
-				
-				for (int i = 0; i < split.length; i++) {
-					String segment = split[i];
-					RouteTreeNode node = null; 
-					
-					if (i == split.length - 1) {
-						node = new RouteTreeNode(segment, method);
-					} else {
-						node = new RouteTreeNode(segment, null);
-					}
-					
-					if (routeTrees.get(verb) == null) {
-						routeTrees.put(verb, node);
-					} else if (i == 0) {
-						if (routeTrees.get(verb).getMethod() == null && node.getMethod() != null) {
-							routeTrees.get(verb).setMethod(node.getMethod());
-						}
-						
-						current = routeTrees.get(verb);
-						continue;
-					} else {
-						current.addNode(node);
-					}
-					
-					current = node;
-				}
+		for (int i = 0; i < split.length; i++) {
+			String segment = split[i];
+			RouteTreeNode node = null; 
+			
+			if (i == split.length - 1) {
+				node = new RouteTreeNode(segment, method);
+			} else {
+				node = new RouteTreeNode(segment, null);
 			}
+			
+			if (tree == null) {
+				tree = node;
+				
+			} else if (i == 0) {
+				if (tree.getMethod() == null && node.getMethod() != null) {
+					tree.setMethod(node.getMethod());
+				}
+				current = tree;
+				continue;
+				
+			} else {
+				current.addNode(node);
+			}
+			
+			current = node;
 		}
+		
+		return tree;
 	}
 	
-	private void route(RouteTreeNode tree, HttpServletRequest req, HttpServletResponse resp) throws HttpException {
+	private void route(RouteTreeNode tree, HttpServletRequest req, HttpServletResponse resp) throws HttpException, IOException {
+		if (tree == null) {
+			resp.setStatus(404);
+			return;
+		}
+		
+		if (auth != null && !auth.verifySignature(req)) {
+			resp.sendRedirect(AuthServlet.LOGIN_URL);
+			return;
+		}
+		
 		HttpRequest httpRequest = new HttpRequest(req);
 		HttpResponse httpResponse = new HttpResponse(resp);
 		
@@ -127,7 +148,7 @@ public class FlyRouter extends HttpServlet {
 			throw new HttpException(e);
 		}
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws HttpException, IOException {
 		route(routeTrees.get(Router.GET), req, resp);

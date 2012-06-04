@@ -82,6 +82,7 @@ public class HttpRequest {
 	public Date getQueryDate(String key) {
 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 		try {
+			if (query.getString(key) == null) { return null; }
 			return df.parse(query.getString(key));
 		} catch (ParseException e) {
 			return null;
