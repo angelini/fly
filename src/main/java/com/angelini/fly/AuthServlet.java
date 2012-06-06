@@ -17,12 +17,10 @@ public class AuthServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final String LOGIN_PAGE = "/layout/login.html";
-	private static final String LOGOUT_PAGE = "/layout/logout.html";
 	
 	public static final String LOGIN_URL = "/auth/login";
 	
 	private String loginPage;
-	private String logoutPage;
 	private Authentication authentication;
 	private AuthenticationCheck authCheck;
 	
@@ -38,7 +36,6 @@ public class AuthServlet extends HttpServlet {
 		
 		this.authentication = authentication;
 		loginPage = Utils.readFile(LOGIN_PAGE);
-		logoutPage = Utils.readFile(LOGOUT_PAGE);
 	}
 	
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -66,7 +63,7 @@ public class AuthServlet extends HttpServlet {
 			
 			resp.setStatus(200);
 			resp.setContentType("text/html");
-			resp.getWriter().print(logoutPage);
+			resp.sendRedirect(LOGIN_URL);
 			return;
 		}
 		
