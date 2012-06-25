@@ -20,11 +20,6 @@ The client side is built purely in HTML and is a UI built with simple reusable c
 
 The main method for your Fly application is extremely simple. Tell the framework which folder in your Classpath contains your HTML, which port the server should run on and how the Servlets should be mounted and that is all. For example here is the Main.java class from the [fly-test](https://github.com/SoapyIllusions/fly-test) application.
 
-    package com.angelini.flyTest;
-
-    import com.angelini.fly.Fly;
-    import com.angelini.fly.FlyDB;
-
     public class Main {
 	
     	public static final int PORT = 8090;
@@ -56,23 +51,6 @@ Routes are very simple using Fly, every routed method from your Servlet receives
 Remember the routes are relative to where the Servlet has been mounted. For example if the ProductRoutes classes is mounted in Main.java at "/products/*" then a route to "/cart" translates as "/products/cart" as the API call's full path.
 
 Here is an example of a route class from [fly-test](https://github.com/SoapyIllusions/fly-test). This route fetches all the products from the MySQL database and returns them as a JSON object using HttpResponse.sendObject(). It fetches query string parameters using HttpRequest.getQuery(). And it pulls a database connection off the pool then closes it before ending the request. Notice how this request holds no state, it is injected with all it needs to function and for the same inputs always does the same operation.
-
-    package com.angelini.flyTest;
-
-    import java.io.IOException;
-    import java.sql.Connection;
-    import java.sql.SQLException;
-    import java.util.Date;
-    import java.util.List;
-
-    import org.slf4j.Logger;
-    import org.slf4j.LoggerFactory;
-
-    import com.angelini.fly.FlyDB;
-    import com.angelini.fly.HttpRequest;
-    import com.angelini.fly.HttpResponse;
-    import com.angelini.fly.RoutedServlet;
-    import com.angelini.fly.Router;
 
     public class ProductRoutes implements RoutedServlet {
 
@@ -136,6 +114,8 @@ The client side is built entirely in HTML using custom data attributes. The HTML
     
 In this example we can see many different components being used. Let's walk through some of them:
 
+**All these components can be used with the `data-ftype` attribute:**
+
 #### Table
 
 This is a table of data which is bound to a List of Objects. we can see that it will be rendered as a table components thanks to the `data-ftype="table"` attribute. We can see it is bound to the searchResults variable thanks to `data-bind="searchResults"` and that whenever a row is selected in the table it is bound to the rowSelect variable. The table's columns are described in the table's children divs as well as which object parameter they are bound to.
@@ -144,12 +124,23 @@ This is a table of data which is bound to a List of Objects. we can see that it 
 
 The form component, like a normal form sends the data of within children inputs to the server. Except our form is describes using data attributes and the request is done by Ajax and not with a page refresh. All the input data will be sent as query parameters and the request will be done using a GET request (other verbs coming soon). `data-validate="true"` tells Fly that there are `data-rules` on some inputs to be checked before making the Ajax call.
 
+#### Autocomplete
 
-### Validation
+This component binds to an array of Strings and offers those options as autocomplete possibilities for the input. The `data-required="true"` attribute means the user can only choose and option from the autocomplete list. Otherwise the autocomplete options will be suggested but they can choose to enter whatever they please in the form.
+
+#### Button
+
+The button ftype is used to make GET requests to the server side API. It is assigned a `data-url` attribute to know which API method to call. It's `data-param` attribute is a list of comma seperated parameters to be bound to the Ajax call and sent as query string data to the server. And finally the `data-bind` attribute tells Fly to which value the response should be bound.
+
+## Authentication
+
+
+
+## Validation
 
 Fly does client side validation using validate.js, the syntax can be seen in fly-test but the exact validate.js rules can be found at [Validate.js](http://rickharrison.github.com/validate.js/)
 
-### Grid System
+## Grid System
 
 Fly uses twitter bootstrap as a CSS framework and it includes a grid system, which is used in this demo. For more information please check out [Twitter Bootstrap Scaffolding](http://twitter.github.com/bootstrap/scaffolding.html).
 
