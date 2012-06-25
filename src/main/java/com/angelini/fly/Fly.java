@@ -25,14 +25,6 @@ public class Fly {
 	private static Logger log = LoggerFactory.getLogger(Fly.class);
 	
 	public Fly(int port, FlyDB db, String html) throws IOException {
-		initialize(port, db, html, null);
-	}
-	
-	public Fly(int port, FlyDB db, String html, String components) throws IOException {
-		initialize(port, db, html, components);
-	}
-	
-	private void initialize(int port, FlyDB db, String html, String compFolder) {
 		this.port = port;
 		this.db = db;
 		this.html = html;
