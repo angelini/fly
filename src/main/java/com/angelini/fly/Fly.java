@@ -1,10 +1,7 @@
 package com.angelini.fly;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jetty.server.Server;
@@ -22,7 +19,7 @@ public class Fly {
 	private Authentication auth;
 	
 	private String html;
-	private String compFolder;
+	private Map<String, String> components;
 	private Map<String, Class<?>> servlets;
 	
 	private static Logger log = LoggerFactory.getLogger(Fly.class);
@@ -39,10 +36,10 @@ public class Fly {
 		this.port = port;
 		this.db = db;
 		this.html = html;
-		this.compFolder = compFolder;
 		
 		this.auth = new Authentication();
 		this.servlets = new HashMap<String, Class<?>>();
+		this.components = new HashMap<String, String>();
 		
 		context = new ServletContextHandler();
 	    context.setContextPath("/");
@@ -59,6 +56,10 @@ public class Fly {
 	
 	public void addServlet(Class<?> servlet, String base) throws RouterException {
 		servlets.put(base, servlet);
+	}
+	
+	public void addComponent(String name, String path) throws IOException {
+		components.put(name, Utils.readFile(path));
 	}
 	
 	public void requireAuth(Class<?> authClass) throws IOException {
@@ -79,7 +80,7 @@ public class Fly {
 			context.addServlet(new ServletHolder(new FlyRouter(db, servlet.getValue(), auth)), servlet.getKey());
 		}
 		
-		LayoutTemplater layout = new LayoutTemplater(html, readComponents(compFolder), auth);
+		LayoutTemplater layout = new LayoutTemplater(html, components, auth);
 		
 		context.addServlet(new ServletHolder(layout), "/*");
 		
@@ -89,22 +90,6 @@ public class Fly {
 		log.info("Server starting on port {}", port);
 		server.start();
 		server.join();
-	}
-	
-	private Map<String, String> readComponents(String compFolder) throws IOException {
-		Map<String, String> components = new HashMap<String, String>();
-		
-		if (components != null) {
-			File dir = new File(getClass().getResource(compFolder).getPath());		
-			List<File> files = Utils.readDir(dir, new ArrayList<File>());
-			
-			for (File file : files) {
-				String comp = Utils.readFile(file);
-				components.put(file.getName(), comp);
-			}
-		}
-		
-		return components;
 	}
 	    
 }
