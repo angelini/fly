@@ -8,7 +8,7 @@
         , columns = []
         ;
       
-      _.each($node.find('[data-ftype="table:column"]'), function(child, i) {
+      _.each($node.find('[data-child="column"]'), function(child, i) {
         var $child = $(child);
         columns.push({ sTitle: $child.data('header')
                      , bind: $child.data('bind')

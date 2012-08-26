@@ -103,12 +103,12 @@ The client side is built entirely in HTML using custom data attributes. The HTML
     <div class="span10">
       <h3 style="margin-bottom: 15px;">Products</h3>
       <div data-ftype="table" data-bind="searchResults" data-selected="rowSelect">
-        <div data-ftype="table:column" data-header="ID" data-bind="id" data-index="true"></div>
-        <div data-ftype="table:column" data-header="Name" data-bind="name"></div>
-        <div data-ftype="table:column" data-header="Price" data-bind="price"></div>
-        <div data-ftype="table:column" data-header="Description" data-bind="description"></div>
-        <div data-ftype="table:column" data-header="Release Date" data-bind="releaseDate"></div>
-        <div data-ftype="table:column" data-header="Type" data-bind="type"></div>
+        <div data-child="column" data-header="ID" data-bind="id" data-index="true"></div>
+        <div data-child="column" data-header="Name" data-bind="name"></div>
+        <div data-child="column" data-header="Price" data-bind="price"></div>
+        <div data-child="column" data-header="Description" data-bind="description"></div>
+        <div data-child="column" data-header="Release Date" data-bind="releaseDate"></div>
+        <div data-child="column" data-header="Type" data-bind="type"></div>
       </div>
     </div>
     
